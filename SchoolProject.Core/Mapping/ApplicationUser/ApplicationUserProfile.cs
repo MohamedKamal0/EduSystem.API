@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using SchoolProject.Core.Featurs.ApplicationUser.Commands.Models;
+using SchoolProject.Core.Featurs.ApplicationUser.Queries.Results;
 using SchoolProject.Data.Entity;
 
 namespace SchoolProject.Core.Mapping.ApplicationUser
@@ -13,7 +14,11 @@ namespace SchoolProject.Core.Mapping.ApplicationUser
     {
         public ApplicationUserProfile() 
         {
-            CreateMap<AddUserCommand, User>();        
+            CreateMap<AddUserCommand, User>();
+            CreateMap<UpdateUserCommand, User>();
+            CreateMap<User, GetUserListResponse>();
+            CreateMap<User, GetUsreByIdResponse>();
+
         }
     }
 }

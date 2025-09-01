@@ -31,9 +31,4 @@
     <ProjectReference Include="..\SchoolProject.Service\SchoolProject.Service.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Featurs\ApplicationUser\Queries\Models\" />
-    <Folder Include="Featurs\ApplicationUser\Queries\Handlers\" />
-  </ItemGroup>
-
 </Project>
