@@ -11,9 +11,7 @@ using SchoolProject.Data.Entity;
 
 namespace SchoolProject.Infrastructure.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<User,IdentityRole<int>,int, IdentityUserClaim<int>,
-        IdentityUserRole<int>,
-        IdentityUserLogin<int>, IdentityRoleClaim<int>, IdentityUserToken<int>>
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
 
         public ApplicationDbContext()
@@ -28,10 +26,18 @@ namespace SchoolProject.Infrastructure.Data
         public DbSet<StudentSubject> StudentSubjects { get; set; }
         public DbSet<DepartmetSubject> DepartmetSubjects { get; set; }
         public DbSet<User> Users { get; set; }
-
+    
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
+            modelBuilder.Entity<User>()
+                .OwnsMany(u => u.RefreshTokens, rt =>
+                {
+                    rt.WithOwner().HasForeignKey("ApplicationUserId");
+                    rt.Property(r => r.Token).IsRequired();
+                    rt.HasKey("ApplicationUserId", "Id");
+                });
+
+
             modelBuilder.Entity<StudentSubject>()
                 .HasKey(x => new { x.SubID, x.StudID });
             modelBuilder.Entity<StudentSubject>()

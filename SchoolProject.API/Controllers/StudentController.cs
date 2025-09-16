@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Core.Featurs.Students.Commands.Models;
@@ -19,12 +20,14 @@ namespace SchoolProject.API.Controllers
             _mediator = medlitor;
         }
         [HttpGet("/student/List")]
+        [Authorize]
         public async Task<IActionResult> GetStudentList()
         {
             var result = await _mediator.Send(new GetstudentListQueriey());
             return Ok(result);
         }
         [HttpGet("/student/paginated")]
+        
         public async Task<IActionResult>pagnation([FromQuery] GetStudentPaginetedQuery query)
         {
             var result =await _mediator.Send(query);

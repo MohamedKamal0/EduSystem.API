@@ -1,6 +1,13 @@
 using System;
+using System.Reflection;
+using System.Text;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using SchoolProject.Core;
 using SchoolProject.Core.MiddleWare;
 using SchoolProject.Data.Entity;
@@ -9,7 +16,6 @@ using SchoolProject.Infrastructure.Data;
 using SchoolProject.Infrastructure.IRepository;
 using SchoolProject.Infrastructure.Repository;
 using SchoolProject.Service;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,31 +27,39 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructureDependencies()
     .AddServiceDependencies()
-    .AddCoreDependencies().AddServiceRegisteration();
+    .AddCoreDependencies().AddServiceRegisteration(builder.Configuration);
+builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 
 
-builder.Services.AddIdentity<User, IdentityRole<int>>(option =>
+builder.Services.AddAuthentication(options =>
 {
-    // Password settings.
-    option.Password.RequireDigit = true;
-    option.Password.RequireLowercase = true;
-    option.Password.RequireNonAlphanumeric = true;
-    option.Password.RequireUppercase = true;
-    option.Password.RequiredLength = 6;
-    option.Password.RequiredUniqueChars = 1;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(o =>
+    {
+        o.RequireHttpsMetadata = false;
+        o.SaveToken = false;
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidIssuer = builder.Configuration["JWT:Issuer"],
+            ValidAudience = builder.Configuration["JWT:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+});
 
-    // Lockout settings.
-    option.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-    option.Lockout.MaxFailedAccessAttempts = 5;
-    option.Lockout.AllowedForNewUsers = true;
+// Add FluentValidation
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-    // User settings.
-    option.User.AllowedUserNameCharacters =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-    option.User.RequireUniqueEmail = true;
-    option.SignIn.RequireConfirmedEmail = true;
-
-}).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -61,6 +75,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors();
 app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
