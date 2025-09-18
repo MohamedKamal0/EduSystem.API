@@ -13,7 +13,8 @@ using SchoolProject.Service.Abstracts;
 namespace SchoolProject.Core.Featurs.Departments.Queries.Handlers
 {
     public class DepartmentQueryHandler:ResponseHandler,
-        IRequestHandler<GetDepartmentByIdQuery,Response<GetDepartmentByIdResponse>>
+        IRequestHandler<GetDepartmentByIdQuery,Response<GetDepartmentByIdResponse>>,
+        IRequestHandler<GetDepartmentStudentCountQuery,Response<List<GetDepartmentStudentCountResult>>>
     {
         private readonly IDepartmentService _departmentService;
         private readonly IMapper _mapper;
@@ -33,6 +34,13 @@ namespace SchoolProject.Core.Featurs.Departments.Queries.Handlers
             //mapping 
             var mapper = _mapper.Map<GetDepartmentByIdResponse>(response);
             return Success(mapper);
+        }
+
+        public async Task<Response<List<GetDepartmentStudentCountResult>>> Handle(GetDepartmentStudentCountQuery request, CancellationToken cancellationToken)
+        {
+            var viewDepartmentResult = await _departmentService.GetViewDepartmentDataAsync();
+            var result = _mapper.Map<List<GetDepartmentStudentCountResult>>(viewDepartmentResult);
+            return Success(result);
         }
     }
 }

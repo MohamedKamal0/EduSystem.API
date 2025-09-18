@@ -13,9 +13,12 @@ namespace SchoolProject.Service
     {
         public static IServiceCollection AddServiceDependencies(this IServiceCollection services)
         {
+            
             services.AddTransient<IStudentService, StudentService>();
             services.AddTransient<IDepartmentService, DepartmentService>();
             services.AddTransient<IAuthenticationServices, AuthenticationServices>();
+            services.AddTransient<IInstructorService, InstructorService>();
+            services.AddTransient<IFileService, FileService>();
 
             return services;
         }

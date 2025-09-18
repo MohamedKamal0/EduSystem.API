@@ -36,6 +36,11 @@ namespace SchoolProject.Core.Mapping.Departments
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
 
+            CreateMap<ViewDepartment, GetDepartmentStudentCountResult>()
+                 .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.DName))
+                 .ForMember(dest => dest.StudentCount, opt => opt.MapFrom(src => src.studentcount));
+
+
         }
 
     }

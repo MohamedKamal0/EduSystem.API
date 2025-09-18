@@ -31,7 +31,7 @@ namespace SchoolProject.API.Controllers
 
             SetRefreshTokenInCookie(result.RefreshToken!, result.RefreshTokenExpiration);
 
-            return Ok(result);
+            return Ok("register succisfuly");
         }
 
         [HttpPost("token")]
