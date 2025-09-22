@@ -1,0 +1,26 @@
+services:
+  edusystem:
+    container_name: edudbservice
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=MyPass123!
+      - MSSQL_PID=Express
+    ports:
+      - "8022:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+
+  eduapi:
+    container_name: eduapiservice
+    build: .
+    ports:
+      - "8006:8080"
+    depends_on:
+      - edusystem
+    environment:
+      - ConnectionStrings__DefaultConnection=Data Source=edusystem,1433;Initial Catalog=SchoolDb;User Id=sa;Password=MyPass123!;TrustServerCertificate=true;Encrypt=false;
+    restart: on-failure
+
+volumes:
+  sqldata:
